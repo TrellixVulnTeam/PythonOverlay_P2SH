@@ -12,12 +12,12 @@ class VideoProcessor:
     def __init__(self, file_path):
         self.file_path = file_path
 
-    def run(self, detect, modify):
+    def run(self, callback, before_show, args):
         video = VideoCapture(self.file_path)
         if not video.isOpened():
             print(self.__ERROR_OPENING_FRAME)
         else:
-            frame_counter = 0
+            frame_counter = self.frame_before_callback
             while video.isOpened():
                 ret, frame = video.read()
 
@@ -28,9 +28,9 @@ class VideoProcessor:
 
                     if frame_counter >= self.frame_before_callback:
                         frame_counter = 0
-                        detect(frame)
+                        callback(frame, args)
 
-                    modify(frame)
+                    before_show(frame, args)
                     imshow(self.__PREVIEW_WIN_TITLE, frame)
 
         video.release()
