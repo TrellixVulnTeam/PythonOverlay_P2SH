@@ -4,15 +4,15 @@ from PIL import Image, ImageTk
 
 # Window properties
 build_size = "320x198"
-bg_image_build = "assets/image/backgrounds/background_build.png"
+bg_image_build = "assets/images/backgrounds/background_build.png"
 
 multiplier_2 = 2
 multiplier_3 = 3
 
 # Hero image properties
-hero_tank = "assets/image/heroes/underlord.png"
-hero_agility = "assets/image/heroes/anti_mage.png"
-hero_mage = "assets/image/heroes/shadow_shaman.png"
+hero_tank = "assets/images/heroes/underlord.png"
+hero_agility = "assets/images/heroes/anti_mage.png"
+hero_mage = "assets/images/heroes/shadow_shaman.png"
 origin = 0
 hero_img_pos_x = -132.5
 hero_img_pos_y = 40
@@ -20,12 +20,12 @@ bd_size = 0
 selected_hero = hero_tank
 
 # Item image properties
-img_1 = "assets/image/items/quelling_blade.png"
-img_2 = "assets/image/items/belt_of_strength.png"
-img_3 = "assets/image/items/crown.png"
-img_4 = "assets/image/items/boots_of_speed.png"
-img_5 = "assets/image/items/chainmail.png"
-img_6 = "assets/image/items/ogre_axe.png"
+img_1 = "assets/images/items/quelling_blade.png"
+img_2 = "assets/images/items/belt_of_strength.png"
+img_3 = "assets/images/items/crown.png"
+img_4 = "assets/images/items/boots_of_speed.png"
+img_5 = "assets/images/items/chainmail.png"
+img_6 = "assets/images/items/ogre_axe.png"
 img_pos_x = 80
 img_pos_y = -55
 new_img_line_y = 65
