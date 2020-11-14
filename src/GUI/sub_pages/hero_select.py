@@ -4,15 +4,15 @@ from PIL import Image, ImageTk
 
 # Window properties
 hero_size = "520x540"
-bg_image_hero = "assets/image/backgrounds/background_hero.png"
+bg_image_hero = "assets/images/backgrounds/background_hero.png"
 
 multiplier_2 = 2
 multiplier_3 = 3
 
 # Hero image properties
-hero_tank = "assets/image/heroes/underlord.png"
-hero_agility = "assets/image/heroes/anti_mage.png"
-hero_mage = "assets/image/heroes/shadow_shaman.png"
+hero_tank = "assets/images/heroes/underlord.png"
+hero_agility = "assets/images/heroes/anti_mage.png"
+hero_mage = "assets/images/heroes/shadow_shaman.png"
 origin = 0
 hero_img_pos_x = -132.5
 hero_img_pos_y = 40
