@@ -132,7 +132,7 @@ class HeroSelect(SubPage):
 
         # Change of opacity function with the slider value 'a'
         def alpha(a):
-            frame.attributes('-alpha', a)
+            frame.master.attributes('-alpha', a)
 
         opacity_slider = Scale(frame, from_=min_opacity, to=max_opacity, length=slider_bar_length, orient=HORIZONTAL,
                                bd=bd_size, sliderlength=slider_length, showvalue=slider_no_value, command=alpha,
