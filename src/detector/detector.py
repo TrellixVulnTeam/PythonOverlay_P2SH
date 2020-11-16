@@ -8,7 +8,7 @@ x_start, x_end = 1084, 638
 
 
 # The acceptable deviation between histogram matches
-acceptable_deviation = 0.10
+acceptable_deviation = 0.04
 
 
 # The match rectangles border color
@@ -19,7 +19,7 @@ rect_border_thickness = 2
 
 # The number of times a reference should be found before
 # we decide a final location
-max_matching_times = 5
+max_matching_times = 1
 
 
 # Executed after running the frame check

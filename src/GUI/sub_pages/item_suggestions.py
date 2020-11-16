@@ -10,6 +10,10 @@ class ItemSuggestions(SubPage):
     item_position = (165, 15)
     item_space = (80, 60)
     item_each_line = 2
+    item_labels = []
+
+    last_hero = None
+    is_active = False
 
     def __init__(self, navigator, next_page):
         super().__init__(navigator, next_page)
@@ -26,6 +30,8 @@ class ItemSuggestions(SubPage):
         btn.place(x=0, y=0)
 
     def add_item_panels(self, frame, hero):
+        # reset item label array
+        self.item_labels = []
         # First panel position
         x, y = self.item_position[0], self.item_position[1]
         i, lines = 0, 0
@@ -46,6 +52,8 @@ class ItemSuggestions(SubPage):
             _x = (x + (i % self.item_each_line * self.item_space[0]))
             _y = (y + (lines * self.item_space[1]))
             label.place(x=_x, y=_y)
+            # save label for later
+            self.item_labels.append(label)
             # increase the index to ensure
             # the spacing and lines from
             # the start panel will increase
@@ -67,9 +75,11 @@ class ItemSuggestions(SubPage):
         self.add_item_background(frame)
 
         if options is not None:
-            hero = options['hero']
-            self.add_hero_panel(frame, hero)
-            self.add_item_panels(frame, hero)
+            self.last_hero = options['hero']
+            self.add_hero_panel(frame, self.last_hero)
+            self.add_item_panels(frame, self.last_hero)
+            self.is_active = True
 
     def __on_click(self):
+        self.is_active = False
         self.navigator.show(self.next_page)

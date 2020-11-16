@@ -11,11 +11,13 @@ class Navigator:
         self.__heroes = heroes
         self.__sub_pages = [HeroSelect(self, ItemSuggestions), ItemSuggestions(self, HeroSelect)]
         self.__main_frame.pack()
-        self.__main_frame.master.title("My Do-Nothing Application")
         self.show(start_page)
 
     def alpha(self, a):
         self.__main_frame.master.attributes('-alpha', a)
+
+    def get_sub_pages(self):
+        return self.__sub_pages
 
     def run(self):
         self.__main_frame.mainloop()
