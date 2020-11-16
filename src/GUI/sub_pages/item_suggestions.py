@@ -2,98 +2,74 @@ from GUI.sub_page import SubPage
 from tkinter import Button, Label
 from PIL import Image, ImageTk
 
-# Window properties
-build_size = "320x198"
-bg_image_build = "assets/images/backgrounds/background_build.png"
-
-multiplier_2 = 2
-multiplier_3 = 3
-
-# Hero image properties
-hero_tank = "assets/images/heroes/underlord.png"
-hero_agility = "assets/images/heroes/anti_mage.png"
-hero_mage = "assets/images/heroes/shadow_shaman.png"
-origin = 0
-hero_img_pos_x = -132.5
-hero_img_pos_y = 40
-bd_size = 0
-selected_hero = hero_tank
-
-# Item image properties
-img_1 = "assets/images/items/quelling_blade.png"
-img_2 = "assets/images/items/belt_of_strength.png"
-img_3 = "assets/images/items/crown.png"
-img_4 = "assets/images/items/boots_of_speed.png"
-img_5 = "assets/images/items/chainmail.png"
-img_6 = "assets/images/items/ogre_axe.png"
-img_pos_x = 80
-img_pos_y = -55
-new_img_line_y = 65
-new_img_line_x = 80
-
-highlight_color = 'green'
-
 
 class ItemSuggestions(SubPage):
+
+    item_background_image_url = "assets/images/backgrounds/background_build.png"
+    item_highlight_color = 'green'
+    item_position = (165, 15)
+    item_space = (80, 60)
+    item_each_line = 2
+
     def __init__(self, navigator, next_page):
         super().__init__(navigator, next_page)
 
-    def build(self, frame):
-        super().build(frame)
+    def add_hero_panel(self, frame, hero):
+        # Load image
+        image = Image.open(hero.avatar_image)
+        # get image as ImageTK
+        image = ImageTk.PhotoImage(image)
+        # Create a button using the image
+        btn = Button(frame, image=image, command=self.__on_click)
+        btn.image = image
+        # Position the button
+        btn.place(x=0, y=0)
 
-        #green_button = Button(frame, text="Brown", fg="brown", command=self.__on_click)
-        #green_button.pack(side=RIGHT)
+    def add_item_panels(self, frame, hero):
+        # First panel position
+        x, y = self.item_position[0], self.item_position[1]
+        i, lines = 0, 0
+        for item_image in hero.item_images:
 
-        # ... hero select widgets
-        load = Image.open(bg_image_build)
-        render = ImageTk.PhotoImage(load)
-        img_bg = Label(frame, image=render, bd=bd_size)
-        img_bg.image = render
-        img_bg.grid(row=origin, column=origin)
+            # increment line number on even indexes
+            if i > 0 and i % self.item_each_line == 0:
+                lines += 1
 
-        # Hero image and return button
-        load = Image.open(selected_hero)
-        render = ImageTk.PhotoImage(load)
-        img_hero = Button(frame, image=render, bd=bd_size, command=self.__on_click)
-        img_hero.image = render
-        img_hero.place(x=origin, y=origin)
+            # Load image
+            image = Image.open(item_image)
+            # get image as ImageTK
+            image = ImageTk.PhotoImage(image)
+            # Create a label using the image
+            label = Label(frame, image=image, bg=self.item_highlight_color)
+            label.image = image
+            # Position the label
+            _x = (x + (i % self.item_each_line * self.item_space[0]))
+            _y = (y + (lines * self.item_space[1]))
+            label.place(x=_x, y=_y)
+            # increase the index to ensure
+            # the spacing and lines from
+            # the start panel will increase
+            i += 1
 
-        # Abilities for build
-        load = Image.open(img_1)
-        render = ImageTk.PhotoImage(load)
-        item_1 = Label(frame, image=render, bg=highlight_color)
-        item_1.image = render
-        item_1.place(x=img_pos_x + new_img_line_x, y=img_pos_y + new_img_line_y)
+    def add_item_background(self, frame):
+        # Load image
+        image = Image.open(self.item_background_image_url)
+        # get image as ImageTK
+        image = ImageTk.PhotoImage(image)
+        # Create a label using the image
+        label = Label(frame, image=image)
+        label.image = image
+        label.grid(row=0, column=0)
 
-        load = Image.open(img_2)
-        render = ImageTk.PhotoImage(load)
-        item_2 = Label(frame, image=render, bg=highlight_color)
-        item_2.image = render
-        item_2.place(x=img_pos_x + new_img_line_x, y=img_pos_y + new_img_line_y * multiplier_2)
+    def build(self, frame, options):
+        super().build(frame, options)
 
-        load = Image.open(img_3)
-        render = ImageTk.PhotoImage(load)
-        item_3 = Label(frame, image=render, bg=highlight_color)
-        item_3.image = render
-        item_3.place(x=img_pos_x + new_img_line_x, y=img_pos_y + new_img_line_y * multiplier_3)
+        self.add_item_background(frame)
 
-        load = Image.open(img_4)
-        render = ImageTk.PhotoImage(load)
-        item_4 = Label(frame, image=render, bg=highlight_color)
-        item_4.image = render
-        item_4.place(x=img_pos_x + new_img_line_x + new_img_line_x, y=img_pos_y + new_img_line_y)
-
-        load = Image.open(img_5)
-        render = ImageTk.PhotoImage(load)
-        item_5 = Label(frame, image=render, bg=highlight_color)
-        item_5.image = render
-        item_5.place(x=img_pos_x + new_img_line_x + new_img_line_x, y=img_pos_y + new_img_line_y * multiplier_2)
-
-        load = Image.open(img_6)
-        render = ImageTk.PhotoImage(load)
-        item_6 = Label(frame, image=render, bg=highlight_color)
-        item_6.image = render
-        item_6.place(x=img_pos_x + new_img_line_x + new_img_line_x, y=img_pos_y + new_img_line_y * multiplier_3)
+        if options is not None:
+            hero = options['hero']
+            self.add_hero_panel(frame, hero)
+            self.add_item_panels(frame, hero)
 
     def __on_click(self):
         self.navigator.show(self.next_page)
