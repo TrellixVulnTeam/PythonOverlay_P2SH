@@ -11,7 +11,8 @@ class Navigator:
         self.__heroes = heroes
         self.__sub_pages = [HeroSelect(self, ItemSuggestions), ItemSuggestions(self, HeroSelect)]
 
-        self.__main_frame.master.wm_attributes("-topmost", 1)
+        self.__main_frame.master.wm_attributes("-topmost", 1)  # keep on top
+        #self.__main_frame.master.overrideredirect(1)  # remove border
         self.__main_frame.pack()
 
         self.show(start_page)
