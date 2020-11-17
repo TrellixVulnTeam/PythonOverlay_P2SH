@@ -10,8 +10,14 @@ class Navigator:
     def __init__(self, start_page, heroes):
         self.__heroes = heroes
         self.__sub_pages = [HeroSelect(self, ItemSuggestions), ItemSuggestions(self, HeroSelect)]
+
+        self.__main_frame.master.wm_attributes("-topmost", 1)
         self.__main_frame.pack()
+
         self.show(start_page)
+
+    def lift(self):
+        self.__main_frame.lift()
 
     def alpha(self, a):
         self.__main_frame.master.attributes('-alpha', a)

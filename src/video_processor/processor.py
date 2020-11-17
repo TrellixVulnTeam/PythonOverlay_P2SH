@@ -1,4 +1,4 @@
-from cv2 import VideoCapture, waitKey, imshow
+from cv2 import VideoCapture, waitKey, imshow, destroyWindow
 
 
 class VideoProcessor:
@@ -35,6 +35,7 @@ class VideoProcessor:
 
                     before_show(frame, args)
                     imshow(self.__PREVIEW_WIN_TITLE, frame)
+        destroyWindow(self.__PREVIEW_WIN_TITLE)
         self.is_running = False
         self.force_stop = False
         video.release()

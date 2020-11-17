@@ -7,12 +7,16 @@ from GUI.sub_pages.hero_select import HeroSelect
 from GUI.sub_pages.item_suggestions import ItemSuggestions
 from GUI.hero import Hero
 from threading import Thread
+from time import sleep
+import random
 
 
 def listen_for_stop_detection(item_suggestions, video_processor):
     while not video_processor.force_stop:
+        sleep(1)
         if not item_suggestions.is_active and video_processor.is_running:
             video_processor.force_stop = True
+
 
 def listen_for_detection(navigator):
     sub_pages = navigator.get_sub_pages()
@@ -24,25 +28,24 @@ def listen_for_detection(navigator):
     while True:
         if item_suggestions.is_active and item_suggestions.last_hero is not None \
                 and not video_processor.is_running:
-            references = []
+            args = {'page': item_suggestions, 'references': []}
             for item_image in item_suggestions.last_hero.item_images_ref:
-                references.append(Reference(imread(item_image)))
+                color = (int(random.uniform(0, 256)), int(random.uniform(0, 256)), int(random.uniform(0, 256)))
+                args['references'].append(Reference(imread(item_image), 0, 0, 0, 0, color))
 
-            #t = Thread(target=listen_for_stop_detection, args=(item_suggestions, video_processor))
-            #t.start()
+            t = Thread(target=listen_for_stop_detection, args=(item_suggestions, video_processor))
+            t.start()
 
-            video_processor.run(detector.frame_check, detector.after_frame_check, references)
+            video_processor.run(detector.frame_check, detector.after_frame_check, args)
+        else:
+            sleep(1)
 
 
 if __name__ == '__main__':
 
     prefix = "assets/images/items/"
-    items = ["quelling_blade.png", "belt_of_strength.png",
-             "crown.png", "boots_of_speed.png", "chainmail.png",
-             "ogre_axe.png"]
-    item_refs = ["quelling_blade_ref.png", "belt_of_strength_ref.png",
-             "crown_ref.png", "boots_of_speed_ref.png", "chainmail_ref.png",
-             "ogre_axe_ref.png"]
+    items = ["chainmail.png", "crown.png", "belt_of_strength.png", "quelling_blade.png", "boots_of_speed.png", "ogre_axe.png"]
+    item_refs = ["aaaa3.png", "aaaa2.png", "aaaa.png", "aaaa5.png", "aaaa6.png", "aaaa7.png"]
     for i in range(0, len(items)):
         items[i] = prefix + items[i]
         item_refs[i] = prefix + item_refs[i]

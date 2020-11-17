@@ -46,7 +46,7 @@ class ItemSuggestions(SubPage):
             # get image as ImageTK
             image = ImageTk.PhotoImage(image)
             # Create a label using the image
-            label = Label(frame, image=image, bg=self.item_highlight_color)
+            label = Label(frame, text=f'{i}', image=image, compound='center', fg='white', font=("Arial", 16))  # , bg=self.item_highlight_color
             label.image = image
             # Position the label
             _x = (x + (i % self.item_each_line * self.item_space[0]))
