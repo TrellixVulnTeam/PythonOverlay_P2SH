@@ -21,6 +21,7 @@ class VideoProcessor:
         else:
             self.is_running = True
             frame_counter = self.frame_before_callback
+            i = 0
             while video.isOpened() and not self.force_stop:
                 ret, frame = video.read()
 
@@ -31,10 +32,12 @@ class VideoProcessor:
 
                     if frame_counter >= self.frame_before_callback:
                         frame_counter = 0
-                        callback(frame, args)
+                        callback(frame, args, i)
 
                     before_show(frame, args)
                     imshow(self.__PREVIEW_WIN_TITLE, frame)
+                i += 1
+
         destroyWindow(self.__PREVIEW_WIN_TITLE)
         self.is_running = False
         self.force_stop = False

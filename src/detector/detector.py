@@ -17,6 +17,9 @@ rect_border_color = (150, 0, 0)
 rect_border_thickness = 5
 
 
+min_acceptable_matches = 10
+
+
 # The number of times a reference should be found before
 # we decide a final location
 max_matching_times = 1
@@ -43,18 +46,19 @@ def after_frame_check(frame, args):
             # draw a rectangle around the matching area using the reference's size
             p1, p2 = (int(x), int(y)), (int(x + 10), int(y + 10))
             cv2.putText(frame, f'{i}', p1, color=reference.get_color(), fontFace=cv2.FONT_HERSHEY_SIMPLEX, thickness=2, fontScale=1)
-            #cv2.rectangle(frame, p1, p2, color=reference.get_color(), thickness=rect_border_thickness)
             if page.is_active:
-                labels[i].configure(bg=_from_rgb(reference.get_color()))
+                color = _from_rgb(reference.get_color())
+                labels[i].configure(bg=color, fg=color)
         i += 1
 
 
 # Used to grayscale and match a frame against the given references
-def frame_check(frame, args):
-    min_matches = 10
+def frame_check(frame, args, n_frame):
     frame_gray = grayscale(frame, y_start, y_end, x_start, x_end)
 
     references = args['references']
+    ground_truth = args['ground_truth']
+    ground_truth_data = args['ground_truth_data'].get_data()
 
     any_to_detect = False
     for reference in references:
@@ -69,32 +73,41 @@ def frame_check(frame, args):
     features2, des2 = orb.detectAndCompute(frame_gray, None)
     bf = cv2.BFMatcher(cv2.NORM_HAMMING2)
 
+    i = 0
     for reference in references:
+        # GT
+        frame_gt = ground_truth_data[n_frame]
+        item_data = frame_gt['items'][i]
+        item_truth = len(item_data) > 0
+        detection_truth = False
+
+        # TP, FP, FN, TN
 
         # continue to the next iteration of the loop
         # if the reference's matching times exceeded
         # the specified max matching times
         if reference.get_matching_times() >= max_matching_times:
-            continue
+            detection_truth = True
+        else:
+            query_img = reference.get_image()
+            features1, des1 = orb.detectAndCompute(query_img, None)
+            matches = bf.knnMatch(des1, des2, k=2)
 
-        query_img = reference.get_image()
-        features1, des1 = orb.detectAndCompute(query_img, None)
-        matches = bf.knnMatch(des1, des2, k=2)
+            # Nearest neighbour ratio test to find good matches
+            good = []
+            good_without_lists = []
+            matches = [match for match in matches if len(match) == 2]
+            for m, n in matches:
+                if m.distance < 0.8 * n.distance:
+                    good.append([m])
+                    good_without_lists.append(m)
 
-        # Nearest neighbour ratio test to find good matches
-        good = []
-        good_without_lists = []
-        matches = [match for match in matches if len(match) == 2]
-        for m, n in matches:
-            if m.distance < 0.8 * n.distance:
-                good.append([m])
-                good_without_lists.append(m)
+            if len(good) >= min_acceptable_matches:
+                detection_truth = True
+                dst_pts = np.float32([features2[m.trainIdx].pt for m in good_without_lists]).reshape(-1, 1, 2)
+                reference.set_location(dst_pts[2][0][1], dst_pts[2][0][0])
+                reference.increase_matching()
+            #else:
+            #    print('Not enough good matches are found - {}/{}'.format(len(good), min_matches))
 
-        if len(good) >= min_matches:
-            dst_pts = np.float32([features2[m.trainIdx].pt for m in good_without_lists]).reshape(-1, 1, 2)
-            reference.set_location(dst_pts[2][0][1], dst_pts[2][0][0])
-            reference.increase_matching()
-        #else:
-        #    print('Not enough good matches are found - {}/{}'.format(len(good), min_matches))
-
-
+        ground_truth.increase_by(item_truth, detection_truth)
