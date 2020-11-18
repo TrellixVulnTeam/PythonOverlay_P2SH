@@ -8,7 +8,6 @@ from GUI.sub_pages.item_suggestions import ItemSuggestions
 from GUI.hero import Hero
 from threading import Thread
 from time import sleep
-from ground_truth.reader import Reader
 from ground_truth.ground_truth import GroundTruth
 
 
@@ -20,7 +19,7 @@ def listen_for_stop_detection(item_suggestions, video_processor, ground_truth):
             ground_truth.save('assets/csv/result.csv')
 
 
-def listen_for_detection(navigator, ground_truth_data, ground_truth):
+def listen_for_detection(navigator, ground_truth):
     sub_pages = navigator.get_sub_pages()
     item_suggestions = [x for x in sub_pages if type(x) is ItemSuggestions][0]
 
@@ -33,7 +32,6 @@ def listen_for_detection(navigator, ground_truth_data, ground_truth):
 
             args = {
                 'page': item_suggestions,
-                'ground_truth_data': ground_truth_data,
                 'ground_truth': ground_truth,
                 'references': []
             }
@@ -50,8 +48,7 @@ def listen_for_detection(navigator, ground_truth_data, ground_truth):
 
 
 if __name__ == '__main__':
-    gt_data = Reader('assets/csv/sample_data.csv')
-    gt = GroundTruth()
+    gt = GroundTruth('assets/csv/sample_data.csv')
 
     txt = "Lorem ipsum dolor sit\namet, consectetur."
     prefix = "assets/images/items/"
@@ -84,7 +81,7 @@ if __name__ == '__main__':
 
     n = Navigator(HeroSelect, heroes)
 
-    thread = Thread(target=listen_for_detection, args=(n, gt_data, gt))
+    thread = Thread(target=listen_for_detection, args=(n, gt))
     thread.start()
 
     n.run()

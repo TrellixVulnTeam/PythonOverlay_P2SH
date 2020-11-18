@@ -58,7 +58,8 @@ def frame_check(frame, args, n_frame):
 
     references = args['references']
     ground_truth = args['ground_truth']
-    ground_truth_data = args['ground_truth_data'].get_data()
+    ground_truth_data = ground_truth.get_data()
+    frame_ground_truth = ground_truth_data[n_frame]
 
     any_to_detect = False
     for reference in references:
@@ -75,13 +76,10 @@ def frame_check(frame, args, n_frame):
 
     i = 0
     for reference in references:
-        # GT
-        frame_gt = ground_truth_data[n_frame]
-        item_data = frame_gt['items'][i]
+
+        item_data = frame_ground_truth['items'][i]
         item_truth = len(item_data) > 0
         detection_truth = False
-
-        # TP, FP, FN, TN
 
         # continue to the next iteration of the loop
         # if the reference's matching times exceeded
