@@ -48,7 +48,7 @@ def listen_for_detection(navigator, ground_truth):
 
 
 if __name__ == '__main__':
-    gt = GroundTruth('assets/csv/sample_data.csv')
+    gt = GroundTruth('assets/csv/sample.csv')
 
     txt = "Lorem ipsum dolor sit\namet, consectetur."
     prefix = "assets/images/items/"

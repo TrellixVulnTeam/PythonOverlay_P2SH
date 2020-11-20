@@ -29,14 +29,31 @@ class GroundTruth:
         elif not item_truth and detection_truth:
             self.__false_positive += 1
 
+    def get_accuracy(self):
+        t = (self.__true_negative + self.__true_positive)
+        total = (self.__true_negative + self.__false_positive +
+                 self.__false_negative + self.__true_positive)
+        return t / total
+
+    def get_precision(self):
+        total = (self.__true_positive + self.__false_positive)
+        return self.__true_positive / total
+
+    def get_recall(self):
+        total = (self.__true_positive + self.__false_negative)
+        return self.__true_positive / total
+
     def save(self, file_path):
         with open(file_path, 'w', newline='') as csv_file:
-            fieldnames = ['TP', 'FP', 'FN', 'TN']
+            fieldnames = ['TP', 'FP', 'FN', 'TN', 'Accuracy', 'Precision', 'Recall']
             res = {
                 'TP': self.__true_positive,
                 'FP': self.__false_positive,
                 'FN': self.__false_negative,
-                'TN': self.__true_negative
+                'TN': self.__true_negative,
+                'Accuracy': self.get_accuracy(),
+                'Precision': self.get_precision(),
+                'Recall': self.get_recall()
             }
             writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
             writer.writeheader()

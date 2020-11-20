@@ -53,13 +53,20 @@ def after_frame_check(frame, args):
 
 
 # Used to grayscale and match a frame against the given references
-def frame_check(frame, args, n_frame):
+def frame_check(frame, args, n_frame, current_duration):
     frame_gray = grayscale(frame, y_start, y_end, x_start, x_end)
 
     references = args['references']
     ground_truth = args['ground_truth']
     ground_truth_data = ground_truth.get_data()
-    frame_ground_truth = ground_truth_data[n_frame]
+    frame_ground_truth = None
+    for data in ground_truth_data:
+        if data['time'] >= current_duration:
+            frame_ground_truth = ground_truth_data[n_frame]
+            break
+
+    if frame_ground_truth is None:
+        return
 
     any_to_detect = False
     for reference in references:
@@ -107,5 +114,5 @@ def frame_check(frame, args, n_frame):
                 reference.increase_matching()
             #else:
             #    print('Not enough good matches are found - {}/{}'.format(len(good), min_matches))
-
         ground_truth.increase_by(item_truth, detection_truth)
+        i +=1

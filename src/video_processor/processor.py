@@ -1,4 +1,4 @@
-from cv2 import VideoCapture, waitKey, imshow, destroyWindow
+from cv2 import VideoCapture, waitKey, imshow, destroyWindow, CAP_PROP_FPS, CAP_PROP_FRAME_COUNT
 
 
 class VideoProcessor:
@@ -16,11 +16,13 @@ class VideoProcessor:
 
     def run(self, callback, before_show, args):
         video = VideoCapture(self.file_path)
+        fps = video.get(CAP_PROP_FPS)
+
         if not video.isOpened():
             print(self.__ERROR_OPENING_FRAME)
         else:
             self.is_running = True
-            frame_counter = self.frame_before_callback
+            frame_counter, n_frames = self.frame_before_callback, 0
             i = 0
             while video.isOpened() and not self.force_stop:
                 ret, frame = video.read()
@@ -29,10 +31,12 @@ class VideoProcessor:
                     break
                 else:
                     frame_counter += 1
+                    n_frames += 1
 
                     if frame_counter >= self.frame_before_callback:
+                        current_duration = float(n_frames) / float(fps)
                         frame_counter = 0
-                        callback(frame, args, i)
+                        callback(frame, args, i, current_duration)
 
                     before_show(frame, args)
                     imshow(self.__PREVIEW_WIN_TITLE, frame)

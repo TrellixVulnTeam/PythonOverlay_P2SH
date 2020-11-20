@@ -16,6 +16,7 @@ class Reader:
     # parse options
     __TIME_P_KEY = 'Tid'
     __ITEM_P_KEY = 'item'
+    __TIME_P_REG = '\s+|sec|\''
     __ITEM_P_REG = '\[|]'
     __N_ITEMS = 6
 
@@ -30,10 +31,12 @@ class Reader:
         self.__data = []
 
         with open(file_path, newline='') as csv_file:
-            reader = csv.DictReader(csv_file)
+            reader = csv.DictReader(csv_file, delimiter=';')
             for row in reader:
 
-                time = parser.parse(row[self.__TIME_P_KEY])
+                seconds = re.sub(self.__TIME_P_REG, '', row[self.__TIME_P_KEY])
+                time = float(seconds)  # parser.parse(row[self.__TIME_P_KEY])
+
                 datum = {self.__TIME_KEY: time, self.__ITEMS_KEY: []}
 
                 for i in range(0, self.__N_ITEMS):
