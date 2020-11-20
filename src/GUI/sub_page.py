@@ -4,5 +4,5 @@ class SubPage:
         self.navigator = navigator
         self.next_page = next_page
 
-    def build(self, frame):
+    def build(self, frame, options):
         frame.clear()

@@ -1,22 +1,17 @@
-from detector.image_processing import grayscale, histogram
+from detector.image_processing import grayscale
 
 
 class Reference:
 
-    def __init__(self, image, bins=256, y_start=0, y_end=0, x_start=0, x_end=0):
-        grey = grayscale(image, y_start, y_end, x_start, x_end)
-        self.__h_ref, self.__b_ref = histogram(grey, bins)
-        self.__bins = bins
-        self.__image = grey
+    def __init__(self, image, y_start=0, y_end=0, x_start=0, x_end=0, color=(150, 0, 0)):
+        self.__image = grayscale(image, y_start, y_end, x_start, x_end)
+        self.__color = color
         self.__matching_times = 0
         self.__last_y = 0
         self.__last_x = 0
 
-    def get_histogram(self):
-        return self.__h_ref, self.__b_ref
-
-    def get_bins(self):
-        return self.__bins
+    def get_color(self):
+        return self.__color
 
     def get_image(self):
         return self.__image

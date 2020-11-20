@@ -1,5 +1,5 @@
 from GUI.sub_page import SubPage
-from tkinter import Button, Label, HORIZONTAL, Scale
+from tkinter import Button, Label, HORIZONTAL, Scale, Canvas, Image
 from PIL import Image, ImageTk
 
 # Window properties
@@ -34,7 +34,7 @@ opacity_slider_res = 0.01
 slider_no_value = 0
 
 # Localization
-banner_hero_txt = "Select a Hero"
+banner_hero_txt = "HERO SELECTION"
 banner_settings_txt = "Settings"
 
 ui_def_txt = "Default"
@@ -55,7 +55,7 @@ new_line_x = 157.5
 
 txt_pos_x = 25
 txt_pos_y = 10
-txt_size = 24
+txt_size = 26
 txt_width = 24
 txt_font = "arial"
 txt_type = 'bold'
@@ -65,45 +65,93 @@ highlight_color = 'green'
 
 
 class HeroSelect(SubPage):
+
+    item_space = (54, 40)
+    item_each_line = 3
+
     def __init__(self, navigator, next_page):
         super().__init__(navigator, next_page)
 
-    def build(self, frame):
-        super().build(frame)
+    def add_item_panels(self, frame, item_images, x, y):
+        r = 30
+        # First panel position
+        i, lines = 0, 0
+        for item_image in item_images:
 
-    # red_button = Button(frame, text="Red", fg="red", command=self.__on_select)
-       # red_button.pack(side=LEFT)
+            # increment line number on even indexes
+            if i > 0 and i % self.item_each_line == 0:
+                lines += 1
 
-        # ... hero select widgets
-        load = Image.open(bg_image_hero)
-        render = ImageTk.PhotoImage(load)
-        img = Label(frame, image=render, bd=bd_size)
-        img.image = render
-        img.grid(row=origin, column=origin)
+            # Load image
+            image = Image.open(item_image['image'])
+            # get image as ImageTK
+            image = ImageTk.PhotoImage(image)
+            # Create a label using the image
+            label = Label(frame, image=image, border=2)
+            label.image = image
+            # Position the label
+            _x = (x + (i % self.item_each_line * self.item_space[0]))
+            _y = (y + (lines * self.item_space[1]))
+            label.place(x=_x, y=_y)
+            # increase the index to ensure
+            # the spacing and lines from
+            # the start panel will increase
+            i += 1
 
+    def add_hero_panels(self, frame, heroes):
+        # First panel position
+        x, y, item_margin = 30, 105, 220
+        btn_margin, btn_w = 310, 20
+        # Panel spacing and index
+        space, i = 178, 0
+        # Loop the heroes array
+        for hero in heroes:
+            # Load image
+            image = Image.open(hero.avatar_image)
+            # get image as ImageTK
+            image = ImageTk.PhotoImage(image)
+            # Create a label using the image
+            label = Label(frame, image=image)
+            label.image = image
+            # Position the label
+            position = ((x + (i*space)), y)
+            label.place(x=position[0], y=position[1])
+
+            btn = Button(frame, text='SELECT', bg='green', fg='white', font=(txt_font, 8, txt_type),
+                         width=btn_w, command=lambda h=hero: self.__on_select(h))
+            btn.place(x=position[0], y=position[1]+btn_margin)
+
+            self.add_item_panels(frame, hero.item_images, position[0], position[1]+item_margin)
+
+            # increase the index to ensure
+            # the spacing from the start panel
+            # will increase
+            i += 1
+
+    def build(self, frame, options):
+        super().build(frame, options)
+
+        # Load image
+        image = Image.open(bg_image_hero)
+        # get image as ImageTK
+        image = ImageTk.PhotoImage(image)
+        # Create a label using the image
+        label = Label(frame, image=image, width=560, height=470)
+        label.image = image
+        label.grid(row=0, column=0)
+
+        if options is not None:
+            heroes = options['heroes']
+            self.add_hero_panels(frame, heroes)
+
+        x, y, w = 0, 28, 26
+        font = (txt_font, txt_size, txt_type)
         # Hero roster
-        banner_hero = Label(frame, text=banner_hero_txt, fg=txt_color, bg=default_color, width=txt_width,
-                            font=(txt_font, txt_size, txt_type))
-        banner_hero.place(x=txt_pos_x, y=txt_pos_y)
+        bg = ("#%02x%02x%02x" % (53, 55, 56))
+        banner_hero = Label(frame, text=banner_hero_txt, fg=txt_color, bg=bg, width=w, font=font)
+        banner_hero.place(x=x, y=y)
 
-        load = Image.open(hero_tank)
-        render = ImageTk.PhotoImage(load)
-        img = Button(frame, image=render, bd=bd_size, command=self.__on_select)
-        img.image = render
-        img.place(x=hero_img_pos_x + new_line_x, y=hero_img_pos_y + new_line_y)
-
-        load = Image.open(hero_agility)
-        render = ImageTk.PhotoImage(load)
-        img = Button(frame, image=render, bd=bd_size, command=self.__on_select)
-        img.image = render
-        img.place(x=hero_img_pos_x + new_line_x * multiplier_2, y=hero_img_pos_y + new_line_y)
-
-        load = Image.open(hero_mage)
-        render = ImageTk.PhotoImage(load)
-        img = Button(frame, image=render, bd=bd_size, command=self.__on_select)
-        img.image = render
-        img.place(x=hero_img_pos_x + new_line_x * multiplier_3, y=hero_img_pos_y + new_line_y)
-
+        """
         # Settings
         banner_settings = Label(frame, text=banner_settings_txt, fg=txt_color, bg=default_color, width=txt_width,
                                 font=(txt_font, txt_size, txt_type))
@@ -137,7 +185,8 @@ class HeroSelect(SubPage):
         opacity_slider = Scale(frame, from_=min_opacity, to=max_opacity, length=slider_bar_length, orient=HORIZONTAL,
                                bd=bd_size, sliderlength=slider_length, showvalue=slider_no_value, command=alpha,
                                resolution=opacity_slider_res)
-        opacity_slider.place(x=22, y=435)
+        opacity_slider.place(x=22, y=435)"""
 
-    def __on_select(self):
-        self.navigator.show(self.next_page)
+    def __on_select(self, hero):
+        options = {'hero': hero}
+        self.navigator.show(self.next_page, options)
