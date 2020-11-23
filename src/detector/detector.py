@@ -1,4 +1,5 @@
-from detector.image_processing import grayscale
+from numpy import zeros, uint8
+from numba import njit
 import cv2
 import numpy as np
 
@@ -6,50 +7,52 @@ import numpy as np
 y_start, y_end = 930, 35
 x_start, x_end = 1084, 630
 
+# The debug item number text settings
+thickness = 2
+font_scale = 1
+font_face = cv2.FONT_HERSHEY_SIMPLEX
 
-# The acceptable deviation between histogram matches
-acceptable_deviation = 0.08
-
-
-# The match rectangles border color
-rect_border_color = (150, 0, 0)
-# And its border thickness
-rect_border_thickness = 5
-
-
+# The number of key points which should match between
+# a target and reference image before the detector
+# accept the item
 min_acceptable_matches = 10
-
 
 # The number of times a reference should be found before
 # we decide a final location
-max_matching_times = 1
+max_matching_times = 5
 
-# https://stackoverflow.com/questions/51591456/can-i-use-rgb-in-tkinter
-def _from_rgb(rgb):
-    """translates an rgb tuple of int to a tkinter friendly color code
-    """
-    return "#%02x%02x%02x" % rgb
+
+def indicate_matches(frame, references, labels, page):
+    # loop through the references
+    for i in range(0, len(references)):
+        # Get current reference
+        reference = references[i]
+
+        # If the reference was found within the frame
+        if reference.get_matching_times() >= max_matching_times:
+            # Get the reference location
+            y, x = reference.get_location()
+
+            # Write the matching reference's iteration number at the location
+            # it was matched within the frame image
+            cv2.putText(frame, f'{i}', (int(x), int(y)), color=reference.get_color(),
+                        fontFace=font_face, thickness=thickness, fontScale=font_scale)
+
+            # if the page is still active
+            if page.is_active:
+                # color the reference's label border and text
+                color = reference.get_color_for_tkinter()
+                labels[i].configure(bg=color, fg=color)
 
 
 # Executed after running the frame check
 def after_frame_check(frame, args):
-
+    # get reference, page, and labels from the option argument
     references = args['references']
     page = args['page']
     labels = page.item_labels
-
-    # loop through the references
-    i = 0
-    for reference in references:
-        if reference.get_matching_times() >= max_matching_times:
-            y, x = reference.get_location()
-            # draw a rectangle around the matching area using the reference's size
-            p1, p2 = (int(x), int(y)), (int(x + 10), int(y + 10))
-            cv2.putText(frame, f'{i}', p1, color=reference.get_color(), fontFace=cv2.FONT_HERSHEY_SIMPLEX, thickness=2, fontScale=1)
-            if page.is_active:
-                color = _from_rgb(reference.get_color())
-                labels[i].configure(bg=color, fg=color)
-        i += 1
+    # draw match indications
+    indicate_matches(frame, references, labels, page)
 
 
 # Used to grayscale and match a frame against the given references
@@ -115,4 +118,18 @@ def frame_check(frame, args, n_frame, current_duration):
             #else:
             #    print('Not enough good matches are found - {}/{}'.format(len(good), min_matches))
         ground_truth.increase_by(item_truth, detection_truth)
-        i +=1
+        i += 1
+
+@njit
+def grayscale(image, y_start=0, y_end=0, x_start=0, x_end=0):
+    new_image = zeros(image.shape, uint8)
+    __WR, __WG, __WB = 0.299, 0.587, 0.114
+
+    for y in range(y_start, image.shape[0]-y_end):
+        for x in range(x_start, image.shape[1]-x_end):
+            i = (__WB * image[y, x, 0]) + \
+                (__WG * image[y, x, 1]) + \
+                (__WR * image[y, x, 2])
+            for c in range(image.shape[2]):
+                new_image[y, x, c] = i
+    return new_image

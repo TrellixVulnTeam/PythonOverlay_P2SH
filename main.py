@@ -1,14 +1,14 @@
 from video_processor.processor import VideoProcessor
 from detector.reference import Reference
 from detector import detector
-from cv2 import imread, imshow, waitKey
+from cv2 import imread
 from GUI.navigator import Navigator
 from GUI.sub_pages.hero_select import HeroSelect
 from GUI.sub_pages.item_suggestions import ItemSuggestions
 from GUI.hero import Hero
 from threading import Thread
 from time import sleep
-from ground_truth.ground_truth import GroundTruth
+from detector.ground_truth import GroundTruth
 
 
 def listen_for_stop_detection(item_suggestions, video_processor, ground_truth):
@@ -17,6 +17,7 @@ def listen_for_stop_detection(item_suggestions, video_processor, ground_truth):
         if not item_suggestions.is_active and video_processor.is_running:
             video_processor.force_stop = True
             ground_truth.save('assets/csv/result.csv')
+            ground_truth.reset()
 
 
 def listen_for_detection(navigator, ground_truth):
@@ -42,12 +43,13 @@ def listen_for_detection(navigator, ground_truth):
             t = Thread(target=listen_for_stop_detection, args=(item_suggestions, video_processor, ground_truth))
             t.start()
 
-            video_processor.run(detector.frame_check, detector.after_frame_check, args)
+            video_processor.run_video(detector.frame_check, detector.after_frame_check, args)
         else:
             sleep(1)
 
 
 if __name__ == '__main__':
+
     gt = GroundTruth('assets/csv/sample.csv')
 
     txt = "Lorem ipsum dolor sit\namet, consectetur."

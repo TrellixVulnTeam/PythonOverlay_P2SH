@@ -1,38 +1,75 @@
+"""
+    The navigator depends on the Page, HeroSelect, and ItemSuggestions classes
+"""
 from GUI.page import Page
 from GUI.sub_pages.hero_select import HeroSelect
 from GUI.sub_pages.item_suggestions import ItemSuggestions
 
 
-# A class used to navigate the sub pages within the main page
+# A key used to specify heroes within
+# the option args. passed to a sub page
+HERO_OPT_KEY = 'heroes'
+
+# Keys used to change behavior and presentation
+# of the window attached to the main frame
+TOP_OPT_KEY = '-topmost'
+ALPHA_OPT_KEY = '-alpha'
+
+
 class Navigator:
+    """
+        A class used to instantiate and navigate the sub pages within the main page
+    """
+
+    # A reference to the navigator's only frame
     __main_frame = Page()
 
     def __init__(self, start_page, heroes):
+        # Save references for later.
         self.__heroes = heroes
         self.__sub_pages = [HeroSelect(self, ItemSuggestions), ItemSuggestions(self, HeroSelect)]
-
-        self.__main_frame.master.wm_attributes("-topmost", 1)  # keep on top
-        #self.__main_frame.master.overrideredirect(1)  # remove border
+        # Ensure the frame stays on top of other windows
+        self.__main_frame.master.wm_attributes(TOP_OPT_KEY, 1)
+        # Pack widgets using horizontal and vertical boxes
         self.__main_frame.pack()
-
+        # Show the first sub page
         self.show(start_page)
 
-    def lift(self):
-        self.__main_frame.lift()
-
-    def alpha(self, a):
-        self.__main_frame.master.attributes('-alpha', a)
+    def alpha(self, value):
+        """
+            Change the opacity of the navigator's frame
+        """
+        self.__main_frame.master.attributes(ALPHA_OPT_KEY, value)
 
     def get_sub_pages(self):
+        """
+            Returns an array with sub pages
+        """
         return self.__sub_pages
 
     def run(self):
+        """
+            Show the frame's current widgets
+        """
         self.__main_frame.mainloop()
 
     def show(self, sub_page, options=None):
-        if options is None:
-            options = {'heroes': self.__heroes}
+        """
+            Change the current sub page that is
+            currently being displayed.
+        """
 
+        # If no options were given, we just pass
+        # the heroes as option to be able show the
+        # hero select page without passing them as
+        # options everytime.
+        if options is None:
+            options = {HERO_OPT_KEY: self.__heroes}
+
+        # Then, we loop all sub pages to find the
+        # sub page with the same instance type as
+        # the one passed as an argument (page)
         for page in self.__sub_pages:
-            if type(page) is sub_page:
+            if isinstance(page, sub_page):
                 page.build(self.__main_frame, options)
+                break
