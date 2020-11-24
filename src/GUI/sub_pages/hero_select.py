@@ -32,6 +32,8 @@ TOP_LABEL_WIDTH = 26
 HERO_POSITION = (30, 105)
 HERO_SPACE = 178
 HERO_ITEM_MARGIN = 220
+HERO_ITEM_SPACE = (54, 40)
+HERO_ITEMS_EACH_LINE = 3
 HERO_BTN_WIDTH = 20
 HERO_BTN_MARGIN = 310
 HERO_BTN_FONT = ('Arial', 8, 'bold')
@@ -44,9 +46,6 @@ class HeroSelect(SubPage):
         can build the required GUI elements which should
         be shown on the hero select page
     """
-
-    item_space = (54, 40)
-    item_each_line = 3
 
     def __init__(self, navigator, next_page):
         super().__init__(navigator, next_page)
@@ -61,7 +60,7 @@ class HeroSelect(SubPage):
         for item_image in item_images:
 
             # increment line number on even indexes
-            if i > 0 and i % self.item_each_line == 0:
+            if i > 0 and i % HERO_ITEMS_EACH_LINE == 0:
                 lines += 1
 
             # Load image
@@ -72,8 +71,8 @@ class HeroSelect(SubPage):
             label = Label(frame, image=image, border=BORDER_SIZE)
             label.image = image
             # Position the label
-            _x = (x + (i % self.item_each_line * self.item_space[0]))
-            _y = (y + (lines * self.item_space[1]))
+            _x = (x + (i % HERO_ITEMS_EACH_LINE * HERO_ITEM_SPACE[0]))
+            _y = (y + (lines * HERO_ITEM_SPACE[1]))
             label.place(x=_x, y=_y)
             # increase the index to ensure
             # the spacing and lines from

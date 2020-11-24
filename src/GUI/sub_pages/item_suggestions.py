@@ -44,21 +44,20 @@ class ItemSuggestions(SubPage):
         be shown on the item suggestion page
     """
 
-    # a reference to each item label
-    # used to indicate an item was found
-    item_labels = []
-
-    # the last selected hero
-    # used to get item suggestions
-    # mapped to the hero
-    last_hero = None
-
-    # used to indicate whether or not
-    # this sub page is active
-    is_active = False
-
     def __init__(self, navigator, next_page):
         super().__init__(navigator, next_page)
+        # a reference to each item label
+        # used to indicate an item was found
+        self.item_labels = []
+
+        # the last selected hero
+        # used to get item suggestions
+        # mapped to the hero
+        self.last_hero = None
+
+        # used to indicate whether or not
+        # this sub page is active
+        self.is_active = False
 
     def add_hero_panel(self, frame, hero):
         """
