@@ -35,9 +35,14 @@ class Processor:
         image or frames loaded from a video located at the file path
     """
 
+    # Specify the number of frames which should pass
+    # before running the detection check
     frames_before_check = 30
 
+    # Determines if the processor is running
     is_running = False
+
+    # Determines if the processor should stop
     force_stop = False
 
     def __init__(self, file_path):
@@ -118,10 +123,11 @@ class Processor:
 
         # declare an empty object to reference the video object
         # that can be used if a file path was specified
-        video = None
+        video, fps = None, None
         if use_video:
             # create a video capture object from the file path
             video = VideoCapture(self.file_path)
+            fps = video.get(CAP_PROP_FPS)
 
             # stop the method if there is any problem opening the video
             # and warn the developer
@@ -164,7 +170,7 @@ class Processor:
                 # if the processor is processing a video
                 if use_video:
                     # calculate the current duration of the video
-                    current_duration = float(video.get(CAP_PROP_FPS)) / n_frames
+                    current_duration = n_frames / fps
 
                 # perform the frame check
                 frame_check(frame, args, n_frames, use_video, current_duration)

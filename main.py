@@ -1,58 +1,34 @@
-from detector.processor import Processor
-from detector.ground_truth import GroundTruth
-from GUI.navigator import Navigator
-from GUI.hero import Hero
+"""
+    main depends on detector, GUI, config, and hero setting files
+"""
+from GUI import navigator, hero
+from detector import detector, ground_truth, processor
+from config import GROUND_TRUTH_FILE_PATH, VIDEO_FILE_PATH
+from hero_settings.hero_one import HERO_AVATAR_ONE, ITEMS_ONE, ITEMS_REFERENCES_ONE
+from hero_settings.hero_two import HERO_AVATAR_TWO, ITEMS_TWO, ITEMS_REFERENCES_TWO
+from hero_settings.hero_three import HERO_AVATAR_THREE, ITEMS_THREE, ITEMS_REFERENCES_THREE
 
 
 if __name__ == '__main__':
+    # read ground truth from file path
+    ground_truth = ground_truth.GroundTruth(GROUND_TRUTH_FILE_PATH)
 
-    gt = GroundTruth('assets/csv/sample.csv')
+    # create heroes
+    heroes = [hero.Hero(HERO_AVATAR_ONE, ITEMS_ONE, ITEMS_REFERENCES_ONE),
+              hero.Hero(HERO_AVATAR_TWO, ITEMS_TWO, ITEMS_REFERENCES_TWO),
+              hero.Hero(HERO_AVATAR_THREE, ITEMS_THREE, ITEMS_REFERENCES_THREE)]
 
-    txt = "Lorem ipsum dolor sit\namet, consectetur."
-    prefix = "assets/images/items/"
-    items = [
-        {'image': "chainmail.png", 'desc': txt},
-        {'image': "crown.png", 'desc': txt},
-        {'image': "belt_of_strength.png", 'desc': txt},
-        {'image': "quelling_blade.png", 'desc': txt},
-        {'image': "boots_of_speed.png", 'desc': txt},
-        {'image': "ogre_axe.png", 'desc': txt}
-    ]
-    item_refs_path = [
-        "aaaa3.png",
-        "aaaa2.png",
-        "aaaa.png",
-        "aaaa5.png",
-        "aaaa6.png",
-        "aaaa7.png"
-    ]
+    # create navigator using the heroes
+    navigator = navigator.Navigator(heroes)
 
-    for i in range(0, len(items)):
-        items[i]['image'] = prefix + items[i]['image']
-        item_refs_path[i] = prefix + item_refs_path[i]
+    # create processor
+    processor = processor.Processor(VIDEO_FILE_PATH)
+    processor.start_async({detector.ARGS_PAGE_KEY: navigator.get_item_suggestions_page(),
+                           detector.ARGS_GT_KEY: ground_truth, detector.ARGS_REF_KEY: []})
 
-    under_lord = Hero('assets/images/heroes/underlord.png', items, item_refs_path)
-    anti_mage = Hero('assets/images/heroes/anti_mage.png', items, item_refs_path)
-    shadow_shaman = Hero('assets/images/heroes/shadow_shaman.png', items, item_refs_path)
+    # run the navigator
+    navigator.run()
 
-    heroes = [under_lord, anti_mage, shadow_shaman]
-
-    n = Navigator(heroes)
-
-    args = {
-        'page': n.get_item_suggestions_page(),
-        'ground_truth': gt,
-        'references': []
-    }
-
-    video_processor = Processor('assets/videos/replays/sample_test.mov')
-    video_processor.frames_before_check = 30  # for debugging
-    video_processor.start_async(args)
-
-    n.run()
-
-    video_processor.is_active = False
-
-
-
-
+    # if the navigator is done running
+    # disable the processor to kill the application
+    processor.is_active = False

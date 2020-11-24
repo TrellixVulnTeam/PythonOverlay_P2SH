@@ -75,7 +75,7 @@ def after_frame_check(frame, args):
 
 
 # Used to match a frame against the given references
-def frame_check(frame, args, n_frame, bypass_gt_check, current_duration):
+def frame_check(frame, args, n_frame, gt_check, current_duration):
     """
         Used to specify functionality that should happen
         after the frame detection check.
@@ -106,9 +106,10 @@ def frame_check(frame, args, n_frame, bypass_gt_check, current_duration):
     # find a ground truth iteration that match
     # the current inspecting frame
     frame_ground_truth = None
-    if not bypass_gt_check:
+    if gt_check:
         # get the formatted ground truth data
         ground_truth_data = ground_truth.get_data()
+
         # find the iteration that match the given duration
         for data in ground_truth_data:
             if data[TIME_KEY] >= current_duration:
