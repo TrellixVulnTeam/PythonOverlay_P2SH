@@ -8,6 +8,9 @@ from detector.gt_reader import GTReader
 # The field names represented within the result csv file
 FIELD_NAMES = ['TP', 'FP', 'FN', 'TN', 'Accuracy', 'Precision', 'Recall']
 
+# The location of the csv where the object should write the result to
+FILE_PATH = 'assets/csv/result.csv'
+
 
 class GroundTruth:
     """
@@ -66,14 +69,14 @@ class GroundTruth:
         elif not item_truth and detection_truth:
             self.__fp += 1
 
-    def save(self, file_path):
+    def save(self):
         """
              Write results based on the current TP, FP, FN, TN values to a csv file
              located at the given file path
         """
 
         # Open the csv file at the given file path
-        with open(file_path, 'w', newline='') as csv_file:
+        with open(FILE_PATH, 'w', newline='') as csv_file:
 
             # format and calculate results
             res = {

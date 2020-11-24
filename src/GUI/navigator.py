@@ -24,7 +24,7 @@ class Navigator:
     # A reference to the navigator's only frame
     __main_frame = Page()
 
-    def __init__(self, start_page, heroes):
+    def __init__(self, heroes, start_page=HeroSelect):
         # Save references for later.
         self.__heroes = heroes
         self.__sub_pages = [HeroSelect(self, ItemSuggestions), ItemSuggestions(self, HeroSelect)]
@@ -34,6 +34,18 @@ class Navigator:
         self.__main_frame.pack()
         # Show the first sub page
         self.show(start_page)
+
+    def get_item_suggestions_page(self):
+        """
+            return the item suggestions sub page
+        """
+        return self.__sub_pages[1]
+
+    def get_main_frame(self):
+        """
+            Returns the main frame
+        """
+        return self.__main_frame
 
     def alpha(self, value):
         """
