@@ -11,12 +11,16 @@ from detector.detector import frame_check, after_frame_check, \
 from detector.reference import Reference
 
 
+# The title of the cv2 window displaying target images
 PREVIEW_WIN_TITLE = "Current frame"
+# The error message displayed if the video is unable to open
 ERROR_OPENING_FRAME = "Error opening video stream or file"
-EXIT_COMMAND = 'q'
 
+# The video's region of interest
 VIDEO_ROI = (930, 35, 1084, 630)
+# The reference's region of interest
 REFERENCE_ROI = (0, 0, 0, 0)
+# The reference's highlight color
 REFERENCE_COLOR = (0, 255, 0)
 
 
