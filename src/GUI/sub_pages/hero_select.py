@@ -25,7 +25,6 @@ TITLE_FONT = ("Arial", 26, 'bold')
 BORDER_SIZE = 2
 
 # top label properties
-x, y, w = 0, 28, 26
 TOP_LABEL_POSITION = (28, 0)
 TOP_LABEL_WIDTH = 26
 
@@ -53,6 +52,11 @@ class HeroSelect(SubPage):
         super().__init__(navigator, next_page)
 
     def add_item_panels(self, frame, item_images, x, y):
+        """
+            Loop through each item image given and
+            add them as labels
+        """
+
         i, lines = 0, 0
         for item_image in item_images:
 
@@ -77,6 +81,12 @@ class HeroSelect(SubPage):
             i += 1
 
     def add_hero_panels(self, frame, heroes):
+        """
+            Loop through each hero and add a label
+            containing their avatar, a section with
+            their items and a button to select a hero
+        """
+
         i = 0
         # Loop the heroes array
         for hero in heroes:
@@ -104,6 +114,9 @@ class HeroSelect(SubPage):
             i += 1
 
     def build(self, frame, options):
+        """
+            Clear the given page and builds the sub page
+        """
         super().build(frame, options)
 
         # Load image
@@ -129,6 +142,10 @@ class HeroSelect(SubPage):
         top_label.place(x=TOP_LABEL_POSITION[1], y=TOP_LABEL_POSITION[0])
 
     def __on_select(self, hero):
+        """
+            Navigate to the next page and pass
+            the selected hero
+        """
         # add the hero passed to the options array
         options = {HERO_OPTIONS_KEY: hero}
         # navigate to the next page using the options
