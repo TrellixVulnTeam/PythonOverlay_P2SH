@@ -1,91 +1,34 @@
-from video_processor.processor import VideoProcessor
-from detector.reference import Reference
-from detector import detector
-from cv2 import imread, imshow, waitKey
-from GUI.navigator import Navigator
-from GUI.sub_pages.hero_select import HeroSelect
-from GUI.sub_pages.item_suggestions import ItemSuggestions
-from GUI.hero import Hero
-from threading import Thread
-from time import sleep
-from ground_truth.ground_truth import GroundTruth
-
-
-def listen_for_stop_detection(item_suggestions, video_processor, ground_truth):
-    while not video_processor.force_stop:
-        sleep(1)
-        if not item_suggestions.is_active and video_processor.is_running:
-            video_processor.force_stop = True
-            ground_truth.save('assets/csv/result.csv')
-
-
-def listen_for_detection(navigator, ground_truth):
-    sub_pages = navigator.get_sub_pages()
-    item_suggestions = [x for x in sub_pages if type(x) is ItemSuggestions][0]
-
-    video_processor = VideoProcessor('assets/videos/replays/sample_test.mov')
-    video_processor.frame_before_callback = 30  # for debugging
-
-    while True:
-        if item_suggestions.is_active and item_suggestions.last_hero is not None \
-                and not video_processor.is_running:
-
-            args = {
-                'page': item_suggestions,
-                'ground_truth': ground_truth,
-                'references': []
-            }
-
-            for item_image in item_suggestions.last_hero.item_images_ref:
-                args['references'].append(Reference(imread(item_image), 0, 0, 0, 0, (0, 255, 0)))
-
-            t = Thread(target=listen_for_stop_detection, args=(item_suggestions, video_processor, ground_truth))
-            t.start()
-
-            video_processor.run(detector.frame_check, detector.after_frame_check, args)
-        else:
-            sleep(1)
+"""
+    main depends on detector, GUI, config, and hero setting files
+"""
+from GUI import navigator, hero
+from detector import detector, ground_truth, processor
+from config import GROUND_TRUTH_FILE_PATH, VIDEO_FILE_PATH
+from hero_settings.hero_one import HERO_AVATAR_ONE, ITEMS_ONE, ITEMS_REFERENCES_ONE
+from hero_settings.hero_two import HERO_AVATAR_TWO, ITEMS_TWO, ITEMS_REFERENCES_TWO
+from hero_settings.hero_three import HERO_AVATAR_THREE, ITEMS_THREE, ITEMS_REFERENCES_THREE
 
 
 if __name__ == '__main__':
-    gt = GroundTruth('assets/csv/sample.csv')
+    # read ground truth from file path
+    ground_truth = ground_truth.GroundTruth(GROUND_TRUTH_FILE_PATH)
 
-    txt = "Lorem ipsum dolor sit\namet, consectetur."
-    prefix = "assets/images/items/"
-    items = [
-        {'image': "chainmail.png", 'desc': txt},
-        {'image': "crown.png", 'desc': txt},
-        {'image': "belt_of_strength.png", 'desc': txt},
-        {'image': "quelling_blade.png", 'desc': txt},
-        {'image': "boots_of_speed.png", 'desc': txt},
-        {'image': "ogre_axe.png", 'desc': txt}
-    ]
-    item_refs = [
-        "aaaa3.png",
-        "aaaa2.png",
-        "aaaa.png",
-        "aaaa5.png",
-        "aaaa6.png",
-        "aaaa7.png"
-    ]
+    # create heroes
+    heroes = [hero.Hero(HERO_AVATAR_ONE, ITEMS_ONE, ITEMS_REFERENCES_ONE),
+              hero.Hero(HERO_AVATAR_TWO, ITEMS_TWO, ITEMS_REFERENCES_TWO),
+              hero.Hero(HERO_AVATAR_THREE, ITEMS_THREE, ITEMS_REFERENCES_THREE)]
 
-    for i in range(0, len(items)):
-        items[i]['image'] = prefix + items[i]['image']
-        item_refs[i] = prefix + item_refs[i]
+    # create navigator using the heroes
+    navigator = navigator.Navigator(heroes)
 
-    under_lord = Hero('assets/images/heroes/underlord.png', items, item_refs)
-    anti_mage = Hero('assets/images/heroes/anti_mage.png', items, item_refs)
-    shadow_shaman = Hero('assets/images/heroes/shadow_shaman.png', items, item_refs)
+    # create processor
+    processor = processor.Processor(VIDEO_FILE_PATH)
+    processor.start_async({detector.ARGS_PAGE_KEY: navigator.get_item_suggestions_page(),
+                           detector.ARGS_GT_KEY: ground_truth, detector.ARGS_REF_KEY: []})
 
-    heroes = [under_lord, anti_mage, shadow_shaman]
+    # run the navigator
+    navigator.run()
 
-    n = Navigator(HeroSelect, heroes)
-
-    thread = Thread(target=listen_for_detection, args=(n, gt))
-    thread.start()
-
-    n.run()
-
-
-
-
+    # if the navigator is done running
+    # disable the processor to kill the application
+    processor.is_active = False
