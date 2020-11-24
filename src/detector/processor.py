@@ -1,7 +1,8 @@
 """
     The processor depends on cv2, numpy, PIL, time, threading, Reference and detector
 """
-from cv2 import VideoCapture, waitKey, imread, imshow, destroyWindow, CAP_PROP_FPS, cvtColor, COLOR_RGB2BGR
+from cv2 import VideoCapture, waitKey, imread, imshow, destroyWindow, \
+    cvtColor, CAP_PROP_FPS, COLOR_RGB2BGR
 from numpy import array, uint8
 from PIL import ImageGrab
 from time import sleep
