@@ -16,7 +16,7 @@ class Page(Frame):
 
     def clear(self):
         """
-            Loop through the frames widgets
+            Loop through the frame's widgets
             and destroy them
         """
         for w in self.winfo_children():
