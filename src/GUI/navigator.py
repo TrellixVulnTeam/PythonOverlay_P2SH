@@ -27,7 +27,8 @@ class Navigator:
     def __init__(self, heroes, start_page=HeroSelect):
         # Save references for later.
         self.__heroes = heroes
-        self.__sub_pages = [HeroSelect(self, ItemSuggestions), ItemSuggestions(self, HeroSelect)]
+        self.__sub_pages = [HeroSelect(self, ItemSuggestions),
+                            ItemSuggestions(self, HeroSelect)]
         # Ensure the frame stays on top of other windows
         self.__main_frame.master.wm_attributes(TOP_OPT_KEY, 1)
         # Pack widgets using horizontal and vertical boxes
