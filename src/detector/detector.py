@@ -5,7 +5,7 @@
 """
 from numpy import zeros, uint8, float32
 from numba import njit
-from cv2 import putText, ORB_create, BFMatcher, NORM_HAMMING2, FONT_HERSHEY_SIMPLEX
+from cv2 import putText, ORB_create, BFMatcher, NORM_HAMMING2, FONT_HERSHEY_SIMPLEX, rectangle, waitKey, imshow
 from detector.gt_reader import TIME_KEY, ITEMS_KEY
 
 
@@ -131,12 +131,14 @@ def frame_check(frame, args, n_frame, gt_check, current_duration):
         reference = references[i]
         # expect the detection truth to be false
         detection_truth = False
+        detection_position = None
 
         # continue to the next iteration of the loop
         # if the reference's matching times exceeded
         # the specified max matching times
         if reference.get_matching_times() >= MAX_MATCHING_TIMES:
             detection_truth = True
+            detection_position = reference.get_location()
         else:
 
             # get the reference grayscale image
@@ -160,13 +162,12 @@ def frame_check(frame, args, n_frame, gt_check, current_duration):
             # if the number of good matches is greater than
             # minimum acceptable matches
             if len(good) >= min_acceptable_matches:
-                # the detection was true
                 detection_truth = True
-
                 # get an array of the matched positions
                 dst_pts = float32([features2[m.trainIdx].pt for m in good_without_lists]).reshape(-1, 1, 2)
                 # save the second as the last matched location
-                reference.set_location(dst_pts[2][0][1], dst_pts[2][0][0])
+                detection_position = (dst_pts[0][0][1], dst_pts[0][0][0])
+                reference.set_location(detection_position[0], detection_position[1])
                 # increase the number of times this references was found
                 reference.increase_matching()
 
@@ -174,12 +175,28 @@ def frame_check(frame, args, n_frame, gt_check, current_duration):
         if frame_ground_truth is not None:
             # get the ground truth items array
             item_data = frame_ground_truth[ITEMS_KEY][i]
-            # expect the item to exist within ground truth
-            # if the GT array length minus 1 is equal or greater
-            # to the current reference iteration index
-            item_truth = len(item_data) - 1 >= i
+
+            # if the item array length is greater than zero
+            # it contains an item
+            item_truth = len(item_data) > 0
+
+            # used to determine if the detection
+            # was at the correct location
+            within_roi_truth = False
+            # however, this is only necessary, if
+            # we expect there should be an item
+            if item_truth and detection_truth:
+                # get position and size
+                x, y, w, h = item_data[0], item_data[1], item_data[2], item_data[3]
+                # check if the detection position
+                # was within the ground truth position
+                within_roi_truth = (
+                        y <= detection_position[0] <= y + h and
+                        x <= detection_position[1] <= x + w
+                )
+                
             # increase the GT object by the item and detection truth
-            ground_truth.increase_by(item_truth, detection_truth)
+            ground_truth.increase_by(item_truth, detection_truth, within_roi_truth)
 
 
 # Use the njit tag from numba on this method to optimize the execution

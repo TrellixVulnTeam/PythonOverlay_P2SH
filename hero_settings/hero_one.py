@@ -13,11 +13,7 @@ HERO_AVATAR_ONE = 'assets/images/heroes/underlord.png'
 # The paths and description of each of the hero's items
 ITEMS_ONE = [
     {
-        ITEM_IMAGE_KEY: f"{ITEMS_FILE_PATH}chainmail.png",
-        ITEM_DESC_KEY: "Lorem ipsum dolor sit\namet, consectetur."
-    },
-    {
-        ITEM_IMAGE_KEY: f"{ITEMS_FILE_PATH}crown.png",
+        ITEM_IMAGE_KEY: f"{ITEMS_FILE_PATH}quelling_blade.png",
         ITEM_DESC_KEY: "Lorem ipsum dolor sit\namet, consectetur."
     },
     {
@@ -25,11 +21,15 @@ ITEMS_ONE = [
         ITEM_DESC_KEY: "Lorem ipsum dolor sit\namet, consectetur."
     },
     {
-        ITEM_IMAGE_KEY: f"{ITEMS_FILE_PATH}quelling_blade.png",
+        ITEM_IMAGE_KEY: f"{ITEMS_FILE_PATH}crown.png",
         ITEM_DESC_KEY: "Lorem ipsum dolor sit\namet, consectetur."
     },
     {
         ITEM_IMAGE_KEY: f"{ITEMS_FILE_PATH}boots_of_speed.png",
+        ITEM_DESC_KEY: "Lorem ipsum dolor sit\namet, consectetur."
+    },
+    {
+        ITEM_IMAGE_KEY: f"{ITEMS_FILE_PATH}chainmail.png",
         ITEM_DESC_KEY: "Lorem ipsum dolor sit\namet, consectetur."
     },
     {
@@ -41,10 +41,10 @@ ITEMS_ONE = [
 
 # The paths to each of the hero's item references
 ITEMS_REFERENCES_ONE = [
-    f"{REFERENCES_FILE_PATH}aaaa3.png",
-    f"{REFERENCES_FILE_PATH}aaaa2.png",
-    f"{REFERENCES_FILE_PATH}aaaa.png",
     f"{REFERENCES_FILE_PATH}aaaa5.png",
+    f"{REFERENCES_FILE_PATH}aaaa.png",
+    f"{REFERENCES_FILE_PATH}aaaa2.png",
     f"{REFERENCES_FILE_PATH}aaaa6.png",
+    f"{REFERENCES_FILE_PATH}aaaa3.png",
     f"{REFERENCES_FILE_PATH}aaaa7.png"
 ]

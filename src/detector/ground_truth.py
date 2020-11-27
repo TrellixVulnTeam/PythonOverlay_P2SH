@@ -55,12 +55,15 @@ class GroundTruth:
         """
         return self.__data
 
-    def increase_by(self, item_truth, detection_truth):
+    def increase_by(self, item_truth, detection_truth, within_roi_truth):
         """
             Increase TP, FP, FN, or TN based on the truthfulness of the
             detection compared to the truthfulness of the matched ground truth data
         """
-        if item_truth and detection_truth:
+
+        # Note: tp can only increase if there actual was an item,
+        # it was detected, and the detection was at the correct location.
+        if item_truth and detection_truth and within_roi_truth:
             self.__tp += 1
         elif not item_truth and not detection_truth:
             self.__tn += 1
