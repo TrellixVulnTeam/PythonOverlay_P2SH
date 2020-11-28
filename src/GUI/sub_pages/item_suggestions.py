@@ -72,6 +72,10 @@ class ItemSuggestions(SubPage):
         # this sub page is active
         self.is_active = False
 
+        # used to reference a top level TKInter window
+        # that is used as a tooltip
+        self.top = None
+
     def add_hero_panel(self, frame, hero):
         """
             Creates a button that display an image of the hero
