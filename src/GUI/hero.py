@@ -2,6 +2,7 @@
 
 ITEM_IMAGE_KEY = 'image'
 ITEM_DESC_KEY = 'desc'
+ITEM_DESC_NAME = 'name'
 
 
 class Hero:

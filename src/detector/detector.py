@@ -5,7 +5,7 @@
 """
 from numpy import zeros, uint8, float32
 from numba import njit
-from cv2 import putText, ORB_create, BFMatcher, NORM_HAMMING2, FONT_HERSHEY_SIMPLEX, rectangle, waitKey, imshow
+from cv2 import putText, ORB_create, BFMatcher, NORM_HAMMING2, FONT_HERSHEY_SIMPLEX
 from detector.gt_reader import TIME_KEY, ITEMS_KEY
 
 

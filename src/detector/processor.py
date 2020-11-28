@@ -7,6 +7,7 @@ from numpy import array, uint8
 from PIL import ImageGrab
 from time import sleep
 from threading import Thread
+from GUI.sub_pages.hero_select import HeroSelect
 from detector.detector import frame_check, after_frame_check, \
     ARGS_REF_KEY, ARGS_PAGE_KEY, ARGS_ROI_KEY, ARGS_GT_KEY
 from detector.reference import Reference
@@ -31,7 +32,7 @@ def get_screenshot():
     """
     image = ImageGrab.grab()
     image = cvtColor(array(image, uint8), COLOR_RGB2BGR)
-    return None, image
+    return True, image
 
 
 class Processor:
@@ -155,7 +156,9 @@ class Processor:
             ret, frame = video.read() if use_video else get_screenshot()
 
             # if the page specified within args is no longer active
-            if not args[ARGS_PAGE_KEY].is_active:
+            # or the processor is done processing the video
+            if not args[ARGS_PAGE_KEY].is_active or not ret:
+
                 # and, the processor is processing a video
                 if use_video and args[ARGS_GT_KEY] is not None:
                     # save the results of the detection evaluation
@@ -163,7 +166,11 @@ class Processor:
                     # and reset the values to be able to process
                     # the video or new real-time screenshots
                     args[ARGS_GT_KEY].reset()
+                    # switch back to hero select page
+                    if args[ARGS_PAGE_KEY].is_active:
+                        args[ARGS_PAGE_KEY].on_click()
                 # stop the while loop
+                self.force_stop = True
                 break
 
             # if the frame counter is greater than frames_before_check
