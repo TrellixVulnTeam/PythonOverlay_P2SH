@@ -11,7 +11,8 @@ class Reference:
         found within a target image
     """
 
-    def __init__(self, image, roi=(0, 0, 0, 0), color=(150, 0, 0)):
+    def __init__(self, image, roi=(0, 0, 0, 0), color=(150, 0, 0), min_acceptable_matches=10):
+        self.min_acceptable_matches = min_acceptable_matches
         # Ensure to grayscale the given image at the ROI
         self.__image = grayscale(image, roi[0], roi[1], roi[2], roi[3])
         # Allow the reference to have its own indication color.
@@ -56,6 +57,12 @@ class Reference:
            Increase the current number of matching times
         """
         self.__matching_times += 1
+
+    def decrease_matching(self):
+        """
+           Increase the current number of matching times
+        """
+        self.__matching_times -= 1
 
     def reset_matching(self):
         """

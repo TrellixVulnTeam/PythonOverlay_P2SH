@@ -5,14 +5,15 @@
 """
 from numpy import zeros, uint8, float32
 from numba import njit
-from cv2 import putText, ORB_create, BFMatcher, NORM_HAMMING2, FONT_HERSHEY_SIMPLEX
+from cv2 import putText, ORB_create, BFMatcher, NORM_HAMMING2, FONT_HERSHEY_SIMPLEX, imshow
 from detector.gt_reader import TIME_KEY, ITEMS_KEY
-
 
 # Keys used to access arguments specified within args
 ARGS_REF_KEY = 'references'
+ARGS_HERO_KEY = 'hero_reference'
 ARGS_PAGE_KEY = 'page'
 ARGS_ROI_KEY = 'roi'
+ARGS_ROI_HERO_KEY = 'roi_hero'
 ARGS_GT_KEY = 'ground_truth'
 
 # The debug item number text settings
@@ -23,7 +24,7 @@ font_face = FONT_HERSHEY_SIMPLEX
 # The number of key points which should match between
 # a target and reference image before the detector
 # accept the item
-min_acceptable_matches = 10
+min_acceptable_matches = 11
 
 # The number of features the orb object can find within
 # the given image
@@ -31,7 +32,7 @@ ORB_N_FEATURES = 10000
 
 # The number of times a reference should be found before
 # we decide a final location
-MAX_MATCHING_TIMES = 5
+MAX_MATCHING_TIMES = 8
 
 
 def indicate_matches(frame, references, labels, page):
@@ -75,7 +76,7 @@ def after_frame_check(frame, args):
 
 
 # Used to match a frame against the given references
-def frame_check(frame, args, n_frame, gt_check, current_duration):
+def frame_check(frame, args, gt_check, current_duration):
     """
         Used to specify functionality that should happen
         after the frame detection check.
@@ -113,7 +114,7 @@ def frame_check(frame, args, n_frame, gt_check, current_duration):
         # find the iteration that match the given duration
         for data in ground_truth_data:
             if data[TIME_KEY] >= current_duration:
-                frame_ground_truth = ground_truth_data[n_frame]
+                frame_ground_truth = data
                 break
 
     # create an opencv orb object looking for n features
@@ -124,6 +125,11 @@ def frame_check(frame, args, n_frame, gt_check, current_duration):
 
     # create an opencv bf matcher object using the NORM_HAMMING method
     bf = BFMatcher(NORM_HAMMING2)
+
+    # Check if the hero is actually selected, before looking for items
+    # This process is done by using the exact same method used to find
+    # items within the hero's inventory
+    hero_selected = hero_select_check(frame, orb, args, bf)
 
     # loop through all references
     for i in range(0, len(references)):
@@ -141,35 +147,35 @@ def frame_check(frame, args, n_frame, gt_check, current_duration):
             detection_position = reference.get_location()
         else:
 
-            # get the reference grayscale image
-            query_img = reference.get_image()
+            # if another unit than the hero is selected,
+            # the inventory does not show the hero's items
+            # therefore, the solution is to ensure the
+            # hero actually is selected before expecting
+            # there to be an item to detect
+            if hero_selected:
 
-            # compute unique key points within the reference grayscale image
-            features1, des1 = orb.detectAndCompute(query_img, None)
+                # get the reference grayscale image
+                query_img = reference.get_image()
 
-            # match the current key points found between the frame and reference
-            matches = bf.knnMatch(des1, des2, k=2)
+                # compute unique key points within the reference grayscale image
+                features1, des1 = orb.detectAndCompute(query_img, None)
 
-            # Nearest neighbour ratio test to find good matches
-            good = []
-            good_without_lists = []
-            matches = [match for match in matches if len(match) == 2]
-            for m, n in matches:
-                if m.distance < 0.8 * n.distance:
-                    good.append([m])
-                    good_without_lists.append(m)
+                if des1 is not None and des2 is not None:
+                    # match the current key points found between the frame and reference
+                    matches = bf.knnMatch(des1, des2, k=2)
+                    good, good_without_lists = ratio_test(matches)
 
-            # if the number of good matches is greater than
-            # minimum acceptable matches
-            if len(good) >= min_acceptable_matches:
-                detection_truth = True
-                # get an array of the matched positions
-                dst_pts = float32([features2[m.trainIdx].pt for m in good_without_lists]).reshape(-1, 1, 2)
-                # save the second as the last matched location
-                detection_position = (dst_pts[0][0][1], dst_pts[0][0][0])
-                reference.set_location(detection_position[0], detection_position[1])
-                # increase the number of times this references was found
-                reference.increase_matching()
+                    # if the number of good matches is greater than
+                    # minimum acceptable matches
+                    if len(good) >= reference.min_acceptable_matches:
+                        detection_truth = True
+                        # get an array of the matched positions
+                        dst_pts = float32([features2[m.trainIdx].pt for m in good_without_lists]).reshape(-1, 1, 2)
+                        # save the second as the last matched location
+                        detection_position = (dst_pts[1][0][1], dst_pts[1][0][0])
+                        reference.set_location(detection_position[0], detection_position[1])
+                        # increase the number of times this references was found
+                        reference.increase_matching()
 
         # if we got ground truth data for this frame, save the detection result
         if frame_ground_truth is not None:
@@ -194,9 +200,62 @@ def frame_check(frame, args, n_frame, gt_check, current_duration):
                         y <= detection_position[0] <= y + h and
                         x <= detection_position[1] <= x + w
                 )
-                
+
             # increase the GT object by the item and detection truth
             ground_truth.increase_by(item_truth, detection_truth, within_roi_truth)
+
+
+def hero_select_check(frame, orb, args, bf):
+    """
+        Returns true if the hero avatar reference was
+        found within the frame
+    """
+    # get roi
+    roi = args[ARGS_ROI_HERO_KEY]
+    # grayscale the given frame
+    frame_gray_avatar = grayscale(frame, y_start=roi[0], y_end=roi[1], x_start=roi[2], x_end=roi[3])
+    # compute unique key points within the grayscale avatar reference
+    # compute unique key points within the grayscale frame
+    _features1, _des1 = orb.detectAndCompute(frame_gray_avatar, None)
+    _features2, _des2 = orb.detectAndCompute(args[ARGS_HERO_KEY], None)
+    # Check if the hero is actually selected, before looking for items
+    # This process is done by using the exact same method used to find
+    # items within the hero's inventory
+    hero_selected = False
+    if _des1 is not None and _des2 is not None:
+        # match the current key points found between the frame and avatar reference
+        matches = bf.knnMatch(_des2, _des1, k=2)
+        _good, _good_without_lists = ratio_test(matches)
+        # if the number of good matches is greater than
+        # minimum acceptable matches
+        if len(_good) >= min_acceptable_matches:
+            hero_selected = True
+
+            """used to debug the hero select detection"""
+            # dst_pts = float32([_features1[m.trainIdx].pt for m in _good_without_lists]).reshape(-1, 1, 2)
+            # _detection_position = (dst_pts[0][0][1], dst_pts[0][0][0])
+            # putText(frame_gray_avatar, f'avatar', (int(_detection_position[1]), int(_detection_position[0])),
+            #        color=(0, 255, 0),
+            #        fontFace=font_face, thickness=thickness, fontScale=font_scale)
+
+    """used to debug the hero select detection"""
+    # imshow('frame_gray_avatar', frame_gray_avatar)
+
+    return hero_selected
+
+
+def ratio_test(matches):
+    """
+        Nearest neighbour ratio test to find good matches
+    """
+    good = []
+    good_without_lists = []
+    matches = [match for match in matches if len(match) == 2]
+    for m, n in matches:
+        if m.distance < 0.8 * n.distance:
+            good.append([m])
+            good_without_lists.append(m)
+    return good, good_without_lists
 
 
 # Use the njit tag from numba on this method to optimize the execution

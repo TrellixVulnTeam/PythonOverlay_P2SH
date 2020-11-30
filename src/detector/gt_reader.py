@@ -14,7 +14,7 @@ ITEMS_KEY = 'items'
 TIME_P_KEY = 'Tid'
 ITEM_P_KEY = 'item'
 TIME_P_REG = '\s+|sec|\''
-ITEM_P_REG = '\[|]'
+ITEM_P_REG = '\[|]|(\.\d+)'
 P_DELIMITER = ";"
 N_ITEMS = 6
 
@@ -51,15 +51,24 @@ class GTReader:
             # loop through each row within the csv file
             for row in reader:
 
+                # DUE TO DIFFERENT TYPES OF TIME FORMAT PRESENTED
+                # WITHIN THE CSV FILES. IT WAS NECESSARY WITH MULTIPLE
+                # SOLUTIONS
+
+                # METHOD ONE
                 # remove white spaces and letters from time string
-                seconds = sub(TIME_P_REG, '', row[TIME_P_KEY])
+                # seconds = sub(TIME_P_REG, '', row[TIME_P_KEY])
+
+                # METHOD TWO
+                seconds = self.get_sec(row[TIME_P_KEY])
+                
                 # format datum object using the time as float and an empty list
                 datum = {TIME_KEY: float(seconds), ITEMS_KEY: []}
 
                 # loop from zero to the number of items expected within the csv file
                 for i in range(0, N_ITEMS):
 
-                    # remove '[]' from the item string arrays
+                    # remove '[]' or any decimals from the item string arrays
                     item_str_array = sub(ITEM_P_REG, "", row[f'{ITEM_P_KEY}{i + 1}'])
                     # split the item string array based on comma and return a list
                     # of the integers found within the item string array
@@ -69,6 +78,15 @@ class GTReader:
 
                 # append the datum object to the data list
                 self.__data.append(datum)
+
+    def get_sec(self, time_str):
+        """
+            Get Seconds from time.
+        """
+        time_str = sub(TIME_P_REG, "", time_str)
+        m, s = time_str.split(':')
+        #h, m, s = ms.split('.')
+        return float(m) * 60 + float(s) # float(h) * 3600 +
 
     def get_data(self):
         """

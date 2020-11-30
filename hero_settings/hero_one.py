@@ -9,6 +9,9 @@ from config import ITEMS_FILE_PATH, REFERENCES_FILE_PATH
 # The path to the hero's avatar image
 HERO_AVATAR_ONE = 'assets/images/heroes/underlord.png'
 
+# The path to the hero's reference image
+HERO_REFERENCE_ONE = 'assets/images/heroes/underlord_reference.png'
+
 
 # The paths and description of each of the hero's items
 ITEMS_ONE = [
@@ -32,6 +35,7 @@ ITEMS_ONE = [
         ITEM_DESC_NAME: "Boots of Speed",
         ITEM_DESC_KEY: "Fleet footwear, increasing movement.\n(+45 Movement speed) (500 gold)"
     },
+
     {
         ITEM_IMAGE_KEY: f"{ITEMS_FILE_PATH}chainmail.png",
         ITEM_DESC_NAME: "Chainmail",
@@ -47,10 +51,20 @@ ITEMS_ONE = [
 
 # The paths to each of the hero's item references
 ITEMS_REFERENCES_ONE = [
-    f"{REFERENCES_FILE_PATH}aaaa5.png",
-    f"{REFERENCES_FILE_PATH}aaaa.png",
-    f"{REFERENCES_FILE_PATH}aaaa2.png",
-    f"{REFERENCES_FILE_PATH}aaaa6.png",
-    f"{REFERENCES_FILE_PATH}aaaa3.png",
-    f"{REFERENCES_FILE_PATH}aaaa7.png"
+    f"{REFERENCES_FILE_PATH}quelling_blade.png",
+    f"{REFERENCES_FILE_PATH}belt_of_strength.png",
+    f"{REFERENCES_FILE_PATH}crown.png",
+    f"{REFERENCES_FILE_PATH}boots_of_speed.png",
+    f"{REFERENCES_FILE_PATH}chainmail.png",
+    f"{REFERENCES_FILE_PATH}ogre_axe.png"
+]
+
+
+ITEMS_ACCEPTABLE_ONE = [
+    10,
+    10,
+    10,
+    10,
+    10,
+    10
 ]

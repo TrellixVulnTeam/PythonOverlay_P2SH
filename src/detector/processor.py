@@ -8,8 +8,8 @@ from PIL import ImageGrab
 from time import sleep
 from threading import Thread
 from GUI.sub_pages.hero_select import HeroSelect
-from detector.detector import frame_check, after_frame_check, \
-    ARGS_REF_KEY, ARGS_PAGE_KEY, ARGS_ROI_KEY, ARGS_GT_KEY
+from detector.detector import frame_check, after_frame_check, grayscale, \
+    ARGS_REF_KEY, ARGS_PAGE_KEY, ARGS_ROI_KEY, ARGS_GT_KEY, ARGS_HERO_KEY, ARGS_ROI_HERO_KEY
 from detector.reference import Reference
 
 
@@ -22,6 +22,8 @@ ERROR_OPENING_FRAME = "Error opening video stream or file"
 VIDEO_ROI = (930, 35, 1084, 630)
 # The reference's region of interest
 REFERENCE_ROI = (0, 0, 0, 0)
+# The avatar's region of interest
+AVATAR_REFERENCE_ROI = (900, 0, 500, 1100)
 # The reference's highlight color
 REFERENCE_COLOR = (0, 255, 0)
 
@@ -73,6 +75,7 @@ class Processor:
 
         # specify args ROI
         args[ARGS_ROI_KEY] = VIDEO_ROI if self.file_path is not None else (0, 0, 0, 0)
+        args[ARGS_ROI_HERO_KEY] = AVATAR_REFERENCE_ROI if self.file_path is not None else (0, 0, 0, 0)
 
         # run the detection while the processor object is active
         while self.is_active:
@@ -83,16 +86,21 @@ class Processor:
                 # when the processor is already running
                 self.is_running = True
 
+                avatar_reference_image = imread(page.last_hero.avatar_reference_path)
+                args[ARGS_HERO_KEY] = grayscale(avatar_reference_image)
+
                 # reset reference list to ensure it only consist of references for
                 # the last selected hero
                 args[ARGS_REF_KEY] = []
 
                 # loop through the item images specified within the last selected hero
-                for item_image_path in page.last_hero.item_images_ref_path:
+                for i in range(0, len(page.last_hero.item_images_ref_path)):
+                    item_image_path = page.last_hero.item_images_ref_path[i]
+                    min_acceptable_matches = page.last_hero.min_acceptable_matches[i]
                     # read the reference image
                     image = imread(item_image_path)
                     # create a reference
-                    reference = Reference(image, REFERENCE_ROI, REFERENCE_COLOR)
+                    reference = Reference(image, REFERENCE_ROI, REFERENCE_COLOR, min_acceptable_matches)
                     # append the reference to the args reference list
                     args[ARGS_REF_KEY].append(reference)
 
@@ -185,7 +193,7 @@ class Processor:
                     current_duration = n_frames / fps
 
                 # perform the frame check
-                frame_check(frame, args, n_frames, use_video, current_duration)
+                frame_check(frame, args, use_video, current_duration)
 
             # execute after frame check functionality for every
             # frame to be able to show item matches in debugging

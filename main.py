@@ -4,9 +4,12 @@
 from GUI import navigator, hero
 from detector import detector, ground_truth, processor
 from config import GROUND_TRUTH_FILE_PATH, VIDEO_FILE_PATH
-from hero_settings.hero_one import HERO_AVATAR_ONE, ITEMS_ONE, ITEMS_REFERENCES_ONE
-from hero_settings.hero_two import HERO_AVATAR_TWO, ITEMS_TWO, ITEMS_REFERENCES_TWO
-from hero_settings.hero_three import HERO_AVATAR_THREE, ITEMS_THREE, ITEMS_REFERENCES_THREE
+from hero_settings.hero_one import HERO_AVATAR_ONE, ITEMS_ONE, \
+    ITEMS_REFERENCES_ONE, HERO_REFERENCE_ONE, ITEMS_ACCEPTABLE_ONE
+from hero_settings.hero_two import HERO_AVATAR_TWO, ITEMS_TWO, \
+    ITEMS_REFERENCES_TWO, HERO_REFERENCE_TWO, ITEMS_ACCEPTABLE_TWO
+from hero_settings.hero_three import HERO_AVATAR_THREE, ITEMS_THREE, \
+    ITEMS_REFERENCES_THREE, HERO_REFERENCE_THREE, ITEMS_ACCEPTABLE_THREE
 
 
 if __name__ == '__main__':
@@ -14,9 +17,9 @@ if __name__ == '__main__':
     ground_truth = ground_truth.GroundTruth(GROUND_TRUTH_FILE_PATH)
 
     # create heroes
-    heroes = [hero.Hero(HERO_AVATAR_ONE, ITEMS_ONE, ITEMS_REFERENCES_ONE),
-              hero.Hero(HERO_AVATAR_TWO, ITEMS_TWO, ITEMS_REFERENCES_TWO),
-              hero.Hero(HERO_AVATAR_THREE, ITEMS_THREE, ITEMS_REFERENCES_THREE)]
+    heroes = [hero.Hero(HERO_AVATAR_ONE, ITEMS_ONE, ITEMS_REFERENCES_ONE, HERO_REFERENCE_ONE, ITEMS_ACCEPTABLE_ONE),
+              hero.Hero(HERO_AVATAR_TWO, ITEMS_TWO, ITEMS_REFERENCES_TWO, HERO_REFERENCE_TWO, ITEMS_ACCEPTABLE_TWO),
+              hero.Hero(HERO_AVATAR_THREE, ITEMS_THREE, ITEMS_REFERENCES_THREE, HERO_REFERENCE_THREE, ITEMS_ACCEPTABLE_THREE)]
 
     # create navigator using the heroes
     navigator = navigator.Navigator(heroes)
