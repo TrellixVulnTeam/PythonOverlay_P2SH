@@ -57,10 +57,10 @@ class GTReader:
 
                 # METHOD ONE
                 # remove white spaces and letters from time string
-                # seconds = sub(TIME_P_REG, '', row[TIME_P_KEY])
+                seconds = sub(TIME_P_REG, '', row[TIME_P_KEY])
 
                 # METHOD TWO
-                seconds = self.get_sec(row[TIME_P_KEY])
+                #seconds = self.get_sec(row[TIME_P_KEY])
                 
                 # format datum object using the time as float and an empty list
                 datum = {TIME_KEY: float(seconds), ITEMS_KEY: []}
